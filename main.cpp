@@ -25,11 +25,12 @@ int main() {
   TestPop_front();
   TestFront();
   TestBack();
-  TestClear();
   TestEmpty();
-  TestInsertWithIterator();
+  TestClear();
   TestListBegin();
   TestListEnd();
+  TestInsertWithIterator();
+  TestEraseWithIterator();
   return 0;
 }
 void TestListEnd() {
@@ -38,7 +39,7 @@ void TestListEnd() {
   li.push_front(19);
   li.push_front(29);
   list<int>::iterator it(new Node<int>());
-  assert(li.end().getM_pNode()->next == nullptr);
+  assert(li.back().next->getLastNode() == true);
   PrintTestResult(!li.empty(), "list.end()");
 }
 void TestListBegin() {
@@ -51,36 +52,54 @@ void TestListBegin() {
 }
 void TestInsertWithIterator() {
   list<int> li;
-  // li.push_back(19);
-  // li.push_front(18);
-  Node<int> *node = new Node<int>();
-  node->nodeData = 5;
-  list<int>::iterator it(node); // or &li.front() or &li.back()
+  li.push_front(12);
+  li.push_front(11);
+  list<int>::iterator it(&li.front()); // e.g.
+  li.push_front(7);
+  li.push_front(6);
   li.insert(it, 10);
-  li.insert(it, 11);
-  li.insert(it, 12);
-  // std::cout << " List.size() " << li.size() << std::endl;
+  li.insert(it, 9);
+  li.insert(it, 8);
   list<int>::iterator itB = li.begin();
   list<int>::iterator itE = li.end();
-
+  std::cout << "Testing insert() ..." << std::endl;
+  std::cout << "     expected values      6, 7, 8, 9, 10, 11, 12 \n "
+               "    actual values        ";
+  unsigned counter = 0;
   while (itB != itE) {
-    std::cout << "iterator " << *itB << std::endl;
-    itB++;
+    std::cout << *itB << ", ";
+    ++itB;
+    ++counter;
   }
-  assert(li.size() == 4);
-  PrintTestResult(!li.empty(), "it.insert()");
+  std::cout << std::endl;
+  assert(li.size() == counter);
+  PrintTestResult(!li.empty(), "list.insert()");
 }
-void TestEraseWithIterator() {}
+void TestEraseWithIterator() {
+  list<int> li;
+  li.push_front(39);
+  li.push_front(29);
+  list<int>::iterator it(&li.front());
+  li.push_front(19);
+  li.push_front(9);
+  li.erase(it);
+  li.erase(it);
+  assert(li.size() == 2);
+  PrintTestResult((li.size() == 2), "list.erase()");
+}
 void TestPop_front() {
   list<int> list;
+  try {
+    list.pop_front();
+  } catch (...) {
+    PrintTestResult(1, "pop_front() with an empty list");
+  }
   list.push_front(9);
-  list.push_back(19);
-  list.push_back(29);
+  list.push_front(19);
+  list.push_front(29);
   list.pop_front();
-  Node<int> i = list.front();
-  list.pop_front();
-  assert(list.size() == 1 && i.nodeData == 19);
-  PrintTestResult(!list.empty(), "pop_front()");
+  assert(list.size() == 2);
+  PrintTestResult(!list.empty(), "pop_front() with a non-empty list");
 }
 
 void TestBack() {
@@ -137,8 +156,6 @@ void TestPush_front() {
 
   assert(list.size() == 3);
   PrintTestResult(!list.empty(), "push_front()");
-  list.clear();
-  assert(list.size() == 0);
 }
 
 void TestEmpty() {
